@@ -5,7 +5,7 @@
             "name": "Download and Run L.py",
             "type": "ev3devBrowser",
             "request": "launch",
-            "program": "/home/robot/${workspaceRootFolderName}/solutions/L.py"
+            "program": "/home/robot/${workspaceRootFolderName}/solutions/main.py"
         },
         {
             "name": "Download and Run Current File",
