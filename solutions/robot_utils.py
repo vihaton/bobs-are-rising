@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import time
 
 def turn_right(tank_drive, speed, duration):
@@ -17,6 +18,8 @@ def turn_90(tank_drive, left=True):
 
 
 def interpolate_linear(start, targ, percent):
+    if percent > 100: #to limit the percent to 100
+        percent = 100
     return percent * (targ - start) + start
 
 def accelerate_to(tank_drive, left_start=0, right_start=0, left_targ=50, right_targ=50, time_sec=1):
@@ -31,3 +34,18 @@ def accelerate_to(tank_drive, left_start=0, right_start=0, left_targ=50, right_t
         if lSpeed != 0 or rSpeed != 0:
             tank_drive.on(lSpeed, rSpeed)
 
+def calibrate_turn(turn_func, tank_drive):
+    while True:
+        turn_func(tank_drive, True)
+        time.sleep(3)
+
+def calibrate_steer_and_speed(button, steering, speed):
+    if button.up:
+        speed += 5
+    elif button.down:
+        speed -= 5
+    elif button.left:
+        steering -= 5
+    elif button.right:
+        steering += 5
+    return steering, speed

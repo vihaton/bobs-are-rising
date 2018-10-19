@@ -1,22 +1,28 @@
 #!/usr/bin/env python3
-from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, SpeedPercent, MoveTank
-from ev3dev2.sensor import INPUT_1
-from ev3dev2.sensor.lego import TouchSensor
+from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, SpeedPercent, MoveTank, MoveSteering
+from ev3dev2.sensor import INPUT_4
+from ev3dev2.sensor.lego import TouchSensor, ColorSensor
 from ev3dev2.led import Leds
+from ev3dev2.button import Button
 
 import time
 
 #our own code
 from robot_utils import *
 from robot_io import *
+from maze import solve_maze
 
 # state constants
 ON = True
 OFF = False
 NORMAL_SPEED = 42
+td = MoveTank(OUTPUT_B, OUTPUT_C) #tank drive
+sd = MoveSteering(OUTPUT_B, OUTPUT_C) #steer drive
+cs = ColorSensor(INPUT_4)
+btn = Button()
 
-
-def l_shape(tank_drive):
+def l_shape():
+    tank_drive = td
     accelerate_to(tank_drive,0,0,NORMAL_SPEED, NORMAL_SPEED,1)
     time.sleep(2)
     accelerate_to(tank_drive, NORMAL_SPEED, NORMAL_SPEED, 0,0,1)
@@ -38,15 +44,11 @@ def main():
     # print something to the output panel in VS Code
     debug_print('Hello VS Code!')
 
-    tank_drive = MoveTank(OUTPUT_B, OUTPUT_C)
+    #l_shape()
 
-    #chair_slalom(tank_drive)
+    solve_maze(sd, cs, btn)
 
-    #l_shape(tank_drive)
-
-    while (True):
-        turn_90(tank_drive, True)
-        time.sleep(3)
+    calibrate_turn(turn_90, td)
 
 if __name__ == '__main__':
     main()
