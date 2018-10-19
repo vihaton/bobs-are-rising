@@ -52,6 +52,10 @@ def turn_left(tank_drive, speed, duration):
 def turn_around(tank_drive):
     tank_drive.on_for_seconds(-26.2, 26.2, 1.4) #calibrated to produce quite accurate 180 degrees
 
+def turn_90(tank_drive, left=True):
+    tank_drive.on_for_seconds(-13, 13, 1.4)
+
+
 def interpolate_linear(start, targ, percent):
     return percent * (targ - start) + start
 
@@ -68,43 +72,13 @@ def accelerate_to(tank_drive, left_start=0, right_start=0, left_targ=50, right_t
             tank_drive.on(lSpeed, rSpeed)
 
 
-def chair_slalom(tank_drive):
-    # the first two parameters can be unit classes or percentages.  
-
-    rounds = 0
-    while (rounds < 5):
-        north = rounds % 2 == 0
-
-        #accelerate to normal speed
-        accelerate_to(tank_drive, 0, 0, NORMAL_SPEED, NORMAL_SPEED, 1)
-        time.sleep(2)
-
-        if north:
-            turn_right(tank_drive, NORMAL_SPEED, 1)
-            turn_left(tank_drive, NORMAL_SPEED, 1)
-        else: 
-            turn_left(tank_drive, NORMAL_SPEED, 1)
-            turn_right(tank_drive, NORMAL_SPEED, 1)
-
-        time.sleep(3)
-
-        if north:
-            turn_left(tank_drive, NORMAL_SPEED, 1)
-            turn_right(tank_drive, NORMAL_SPEED, 1)
-        else:
-            turn_right(tank_drive, NORMAL_SPEED, 1)
-            turn_left(tank_drive, NORMAL_SPEED, 1)
-
-        time.sleep(3)
-
-        accelerate_to(tank_drive, NORMAL_SPEED, NORMAL_SPEED, 0, 0, 1)
-
-        turn_around(tank_drive)
-        rounds += 1
-
 def l_shape(tank_drive):
     accelerate_to(tank_drive,0,0,NORMAL_SPEED, NORMAL_SPEED,1)
-    time.sleep(2)
+    time.sleep(4)
+    accelerate_to(tank_drive, NORMAL_SPEED, NORMAL_SPEED, 0,0,1)
+    turn_90(tank_drive, True)
+    accelerate_to(tank_drive, 0,0,NORMAL_SPEED, NORMAL_SPEED,1)
+    time.sleep(3)
     accelerate_to(tank_drive, NORMAL_SPEED, NORMAL_SPEED, 0,0,1)
 
 def main():
@@ -126,12 +100,12 @@ def main():
     #chair_slalom(tank_drive)
 
     l_shape(tank_drive)
-    
-    """
+
+"""
     while (True):
-        turn_around(tank_drive)
+        turn_90(tank_drive, True)
         time.sleep(3)
-    """
+"""
 
 if __name__ == '__main__':
     main()
