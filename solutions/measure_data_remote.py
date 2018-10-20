@@ -68,7 +68,7 @@ running = True
 
 class MotorThread(threading.Thread):
     def __init__(self):
-        self.motor = ev3.LargeMotor(ev3.OUTPUT_A)
+        #self.motor = ev3.LargeMotor(ev3.OUTPUT_A)
         threading.Thread.__init__(self)
 
     def run(self):
@@ -79,14 +79,14 @@ class MotorThread(threading.Thread):
             round += 1 
             if speed < 0:
                 if speed < -joystick_signal_threshold:
-                    #sd.on(-steer, speed) #for BOB
-                    sd.on(steer, -speed) #for training robot
+                    sd.on(-steer, speed) #for BOB
+                    #sd.on(steer, -speed) #for training robot
                 else:
                     sd.off()
             else:
                 if speed > joystick_signal_threshold:
-                    #sd.on(-steer, speed) #for BOB
-                    sd.on(steer, -speed) #for training robot
+                    sd.on(-steer, speed) #for BOB
+                    #sd.on(steer, -speed) #for training robot
                 else:
                      sd.off()
             #self.motor.run_direct(duty_cycle_sp=speed)
