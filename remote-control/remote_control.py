@@ -37,7 +37,8 @@ debug_print("Finding ps3 controller...")
 devices = [evdev.InputDevice(fn) for fn in evdev.list_devices()]
 for device in devices:
     debug_print(device.name)
-    if device.name == 'Wireless Controller':
+    #if device.name == 'Wireless Controller': #PS4
+    if device.name == 'PLAYSTATION(R)3 Controller': #PS3
         debug_print("PS3 FOUND!")
         ps3dev = device.fn
 
@@ -69,12 +70,14 @@ class MotorThread(threading.Thread):
             round += 1 
             if speed < 0:
                 if speed < -3:
-                    sd.on(-steer, speed)
+                    #sd.on(-steer, speed) #for BOB
+                    sd.on(steer, -speed) #for training robot
                 else:
                     sd.off()
             else:
                 if speed > 3:
-                    sd.on(-steer, speed)
+                    #sd.on(-steer, speed) #for BOB
+                    sd.on(steer, -speed) #for training robot
                 else:
                      sd.off()
             #self.motor.run_direct(duty_cycle_sp=speed)
@@ -114,26 +117,26 @@ for event in gamepad.read_loop():   #this loops infinitely
         debug_print("Left button is pressed")
     if event.type == 1 and event.code == 311 and event.value == 1:
         #debug_print("R1 button is pressed")
-        if steerLimit > 0:
-            steerLimit -= 10
+        if steerLimit < 100:
+            steerLimit += 10
             debug_print("New steer limit is: ", steerLimit)
             print("Steer: ", steerLimit)
     if event.type == 1 and event.code == 313 and event.value == 1:
         #debug_print("R2 button is pressed")
-        if speedLimit > 0:
-            speedLimit -= 10
+        if speedLimit < 100:
+            speedLimit += 10
             debug_print("New speed limit is: ", speedLimit)
             print("Speed: ", speed)
 
     if event.type == 1 and event.code == 310 and event.value == 1:
         #debug_print("L1 button is pressed")
-        if steerLimit < 100:
-            steerLimit += 10
+        if steerLimit > 0:
+            steerLimit -= 10
             debug_print("New steer limit is: ", steerLimit)
     if event.type == 1 and event.code == 312 and event.value == 1:
         #debug_print("L2 button is pressed")
-        if speedLimit < 100:
-            speedLimit += 10
+        if speedLimit > 0:
+            speedLimit -= 10
             debug_print("New speed limit is: ", speedLimit)
 
     if event.type == 1 and event.code == 315 and event.value == 1:
