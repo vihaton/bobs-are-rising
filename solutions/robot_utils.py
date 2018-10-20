@@ -10,11 +10,11 @@ def turn_left(tank_drive, speed, duration):
     accelerate_to(tank_drive, speed, speed, speed / 2, speed, duration / 2)
     accelerate_to(tank_drive, speed / 2, speed, speed, speed, duration / 2)
 
-def turn_around(tank_drive):
-    tank_drive.on_for_seconds(-26.2, 26.2, 1.4) #calibrated to produce quite accurate 180 degrees
+def turn_around(steer_drive):
+    steer_drive.on_for_seconds(-100, 26.2, 1.4) #calibrated to produce quite accurate 180 degrees
 
-def turn_90(tank_drive, left=True):
-    tank_drive.on_for_seconds(-13, 13, 1.4)
+def turn_90(steer_drive, left=True):
+    steer_drive.on_for_seconds(-100, 13, 1.4)
 
 
 def interpolate_linear(start, targ, percent):

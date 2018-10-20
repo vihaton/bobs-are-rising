@@ -1,22 +1,46 @@
 #!/usr/bin/env python3
+from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, SpeedPercent, MoveTank, MoveSteering
+from ev3dev2.sensor import INPUT_4
+from ev3dev2.sensor.lego import TouchSensor, ColorSensor
+from ev3dev2.led import Leds
+from ev3dev2.button import Button
 
 from robot_utils import *
 from robot_io import *
 
+# state constants
+ON = True
+OFF = False
+NORMAL_SPEED = 42
+td = MoveTank(OUTPUT_B, OUTPUT_C) #tank drive
+sd = MoveSteering(OUTPUT_B, OUTPUT_C) #steer drive
+cs = ColorSensor(INPUT_4)
+btn = Button()
+
 YELLOW = 4
 WHITE = 6
 COLORS=('unknown','black','blue','green','yellow','red','white','brown')
+CONSECUTIVE_YELLOWS = 0
 
 
 def check_for_button(color_sensor):
+    global CONSECUTIVE_YELLOWS
     c = color_sensor.value()
     print("color = ", c , " = ", COLORS[c])
-    if c is YELLOW: #we're on the yellow button
+    if c is YELLOW:
+        CONSECUTIVE_YELLOWS += 1
+    else:
+        CONSECUTIVE_YELLOWS = 0
+
+    if CONSECUTIVE_YELLOWS > 3: #we have found the button
         return True
     return False
 
-def follow_line(func_condition_to_exit, sd, button, color_sensor, steering=10, speed=40): #let's follow the right edge!
-    while not func_condition_to_exit:
+def check_for_end(variable):
+    return False
+
+def follow_line(func_condition_to_exit, sd, button, color_sensor, steering=10, speed=40, input_for_exit_condition=None): #let's follow the right edge!
+    while not func_condition_to_exit(input_for_exit_condition):
         steering, speed = calibrate_steer_and_speed(button, steering, speed)
         c = color_sensor.value()
         print(steering, speed)
@@ -27,6 +51,11 @@ def follow_line(func_condition_to_exit, sd, button, color_sensor, steering=10, s
         else:                               #were not on the line, steer left
             sd.on(-steering, speed)
 
+def press_the_button(sd):
+    sd.on_for_seconds(steering=0, speed=30, seconds=1) #straight forward
+    time.sleep(1)
+    turn_around(sd)
+    sd.on_for_seconds(0, 30, 1)
 
 # #DEPRACATED
 # def follow_line_with_interpolation(sd, color_sensor, steering=10, speed=40): #let's follow the right edge!
@@ -56,15 +85,25 @@ def solve_maze(sd, color_sensor, button):
 
     color_sensor.mode = 'COL-COLOR' #let's recognice colors
 
-    #etsitään nappi seuraamalla valkoista viivaa
-    follow_line(check_for_button(color_sensor), sd, button, color_sensor,42, 15) #42 for steering and 15 for speed follows also 90*degree angles
+    cfb = lambda color_sensor : check_for_button(color_sensor) #my first lambda funcion ever
+
+    #etsitään nappi seuraamalla valkoista viivaa kunnes nappi löytyy
+    follow_line(cfb, sd, button, color_sensor,47, 15, input_for_exit_condition=color_sensor) #42 for steering and 15 for speed follows also 90*degree angles
     
     print("button found!")
     #odotetaan siirtymä ja valmistaudutaan jatkamaan
+
+    #move on the button
+    press_the_button(sd)
+
+    cfe = lambda x : check_for_end(x)
+    #find the goal
+    follow_line(cfe, sd, button, color_sensor, 42, 15)
 
     while True: #stop program to read screen
         if button.any():
             break
 
-
+if __name__ == '__main__':
+    solve_maze(sd, cs, btn)
     

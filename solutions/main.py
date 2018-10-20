@@ -48,6 +48,8 @@ def main():
 
     solve_maze(sd, cs, btn)
 
+    #solve_forest(sd, cs, btn)
+
     #calibrate_turn(turn_90, td)
 
 if __name__ == '__main__':
