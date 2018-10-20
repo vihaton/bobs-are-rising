@@ -67,6 +67,10 @@ def follow_line(func_condition_to_exit, sd, button, color_sensor, steering=10, s
         else:                               #were not on the line (-:-), steer left
             sd.on(right_edge * -steering, speed)
 
+        if btn.enter:
+            sd.stop()
+            time.sleep(5)
+
 def press_the_button():
     #accelerate a little sprint
     accelerate_to(td, left_start=15, right_start=15, left_targ=25, right_targ=25, duration_sec=0.25) 
@@ -117,7 +121,7 @@ def solve_maze(sd, color_sensor, button):
     cfb = lambda color_sensor : check_for_button(color_sensor) #my first lambda funcion ever
 
     #etsitään nappi seuraamalla valkoista viivaa kunnes nappi löytyy
-    follow_line(cfb, sd, button, color_sensor,47, 12, input_for_exit_condition=color_sensor) #42 for steering and 15 for speed follows also 90*degree angles
+    follow_line(cfb, sd, button, color_sensor,45, 10, input_for_exit_condition=color_sensor) #42 for steering and 15 for speed follows also 90*degree angles
     
     print("button found!")
     #odotetaan siirtymä ja valmistaudutaan jatkamaan
@@ -130,7 +134,7 @@ def solve_maze(sd, color_sensor, button):
 
     cfe = lambda color_sensor : check_for_end_of_challange(color_sensor)
     #find the goal
-    follow_line(cfe, sd, button, color_sensor, 47, 12, input_for_exit_condition=color_sensor)
+    follow_line(cfe, sd, button, color_sensor, 45, 10, input_for_exit_condition=color_sensor)
 
     print("end found!")
     while True: #stop program to read screen

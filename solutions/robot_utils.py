@@ -58,11 +58,11 @@ def calibrate_turn(turn_func, tank_drive):
 
 def calibrate_steer_and_speed(button, steering, speed):
     if button.up:
-        speed += 5
+        speed += 1
     elif button.down:
-        speed -= 5
+        speed -= 1
     elif button.left:
-        steering -= 5
+        steering -= 1
     elif button.right:
-        steering += 5
+        steering += 1
     return steering, speed

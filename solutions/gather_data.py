@@ -31,9 +31,11 @@ class DataThread(threading.Thread):
             self.speed_data.append([t, speed_l, speed_r])
             # if floor(t/10) % 10 is 0:
             #     debug_print("time ", t, " floor(t/10) ", floor(t/10), " speed ", [speed_l, speed_r])
-            if self.btn.enter:
+            
+            if self.btn.enter: # let's send the data and restart measurements
                 debug_print(self.speed_data)
-
+                time.sleep(4.8) # wait for 5 sec to set to robot to beginning again
+                time_start = time.time() * 1000
 
 
 def start_data_gathering():
