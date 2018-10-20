@@ -1,4 +1,7 @@
+__author__ = "Vili Hätönen"
+
 import os
+import thor
 
 name = "speed_data_2.txt"
 data_str = ""
@@ -12,3 +15,9 @@ data = data[1:]
 print("should be list type now", type(data))
 print("data length", len(data))
 print("data table length ", len(data[0]))
+
+model = thor.ragnarok(data)
+
+model_name = "model_1.thor"
+with open(model_name, "w" ) as file:
+    file.write(str(model))

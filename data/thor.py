@@ -6,7 +6,7 @@ import sys
 import builtins
 import generator_test
 
-def transform_source(arrays):
+def ragnarok(arrays):
     # First align values to start at the same time
     arrays = align_values(arrays)
 
