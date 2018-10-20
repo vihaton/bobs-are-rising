@@ -42,3 +42,6 @@ def start_data_gathering():
     data_thread = DataThread()
     data_thread.setDaemon(True)
     data_thread.start()
+
+def save_data_to_file():
+    #I have a dream
