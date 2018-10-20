@@ -11,6 +11,7 @@ import time
 from robot_utils import *
 from robot_io import *
 from maze import solve_maze
+from gather_data import start_data_gathering
 
 # state constants
 ON = True
@@ -44,7 +45,7 @@ def main():
     # print something to the output panel in VS Code
     debug_print('Hello VS Code!')
 
-    #l_shape()
+    start_data_gathering()    
 
     solve_maze(sd, cs, btn)
 
