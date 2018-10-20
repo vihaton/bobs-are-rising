@@ -1,0 +1,21 @@
+In case robot fails, improvement possibilities:
+
+
+In code:
+- Delete outliers
+	- Especially the ones with a very different length
+- Figure a way to smooth out the edgy parts
+	- This should be done in thor.py
+- Try to detect distinct parts of the puzzle (specifically, straigt stretches should be distinguished from turns)
+	- Then we can optimize?
+
+When getting data:
+- GET MORE DATA
+- Be more specific about the starting point
+	- Push the robot against a wall etc.
+	- Take pictures to not forget!
+- Drive slower (set max speed lower)
+	- Can speed it up in code later!
+- Set minimum speed threshold higher
+- Avoid unnecessary turns
+- Remember to go and turn at full speed
