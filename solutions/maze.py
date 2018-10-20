@@ -19,10 +19,11 @@ cs = ColorSensor(INPUT_4)
 btn = Button()
 
 YELLOW = 4
+RED = 5
 WHITE = 6
 COLORS=('unknown','black','blue','green','yellow','red','white','brown')
+CONSECUTIVE_REDS = 0
 CONSECUTIVE_YELLOWS = 0
-
 
 def check_for_button(color_sensor):
     global CONSECUTIVE_YELLOWS
@@ -37,26 +38,48 @@ def check_for_button(color_sensor):
         return True
     return False
 
-def check_for_end(variable):
+
+def check_for_end_of_challange(color_sensor):
+    global CONSECUTIVE_REDS
+    c = color_sensor.value()
+    print("cfe: ", c, " = ", COLORS[c])
+    if c is RED:
+        CONSECUTIVE_REDS += 1
+    else:
+        CONSECUTIVE_REDS = 0
+
+    if CONSECUTIVE_REDS > 3:
+        return True
     return False
 
-def follow_line(func_condition_to_exit, sd, button, color_sensor, steering=10, speed=40, input_for_exit_condition=None): #let's follow the right edge!
+def follow_line(func_condition_to_exit, sd, button, color_sensor, steering=10, speed=40, right_edge=True, input_for_exit_condition=None): #let's follow the right edge!
+    if right_edge: right_edge = 1
+    else: right_edge = -1
+
     while not func_condition_to_exit(input_for_exit_condition):
         steering, speed = calibrate_steer_and_speed(button, steering, speed)
         c = color_sensor.value()
         print(steering, speed)
         print(c , " = ", COLORS[c])
 
-        if c is WHITE:   #when we're on top of the line, steer right
-            sd.on(steering, speed)
-        else:                               #were not on the line, steer left
-            sd.on(-steering, speed)
+        if c is WHITE:   #when we're on top of the line (and follow right edge), steer right
+            sd.on(right_edge * steering, speed)
+        else:                               #were not on the line (-:-), steer left
+            sd.on(right_edge * -steering, speed)
 
-def press_the_button(sd):
-    sd.on_for_seconds(steering=0, speed=30, seconds=1) #straight forward
+def press_the_button():
+    #accelerate a little sprint
+    accelerate_to(td, left_start=15, right_start=15, left_targ=25, right_targ=25, duration_sec=0.25) 
     time.sleep(1)
-    turn_around(sd)
-    sd.on_for_seconds(0, 30, 1)
+    #stop
+    accelerate_to(td, 25, 25, 0, 0, 0.5) 
+
+    #move backwards
+    accelerate_to(td, 0, 0, -30, -30, 0.5)
+    time.sleep(2)
+    #stop
+    accelerate_to(td, -30, -30, 0, 0, 0.5)
+
 
 # #DEPRACATED
 # def follow_line_with_interpolation(sd, color_sensor, steering=10, speed=40): #let's follow the right edge!
@@ -82,6 +105,11 @@ def press_the_button(sd):
 #             loops_wo_white += 1
 
 def solve_maze(sd, color_sensor, button):
+    # set the console just how we want it
+    reset_console()
+    set_cursor(OFF)
+    set_font('Lat15-Terminus24x12')
+
     print("let's follow the line to find a button!")
 
     color_sensor.mode = 'COL-COLOR' #let's recognice colors
@@ -94,16 +122,20 @@ def solve_maze(sd, color_sensor, button):
     print("button found!")
     #odotetaan siirtymä ja valmistaudutaan jatkamaan
 
-    #move on the button
-    press_the_button(sd)
+    press_the_button()
 
-    cfe = lambda x : check_for_end(x)
+    #let's find the white line again
+    turn_to_find_color(sd, color_sensor)
+
+    cfe = lambda color_sensor : check_for_end_of_challange(color_sensor)
     #find the goal
-    follow_line(cfe, sd, button, color_sensor, 42, 15)
+    follow_line(cfe, sd, button, color_sensor, 42, 15, input_for_exit_condition=color_sensor)
 
+    print("end found!")
     while True: #stop program to read screen
         if button.any():
             break
+
 
 if __name__ == '__main__':
     solve_maze(sd, cs, btn)
