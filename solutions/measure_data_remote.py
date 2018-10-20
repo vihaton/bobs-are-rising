@@ -43,8 +43,8 @@ debug_print("Finding ps3 controller...")
 devices = [evdev.InputDevice(fn) for fn in evdev.list_devices()]
 for device in devices:
     debug_print(device.name)
-    #if device.name == 'Wireless Controller': #PS4
-    if device.name == 'PLAYSTATION(R)3 Controller': #PS3
+    if device.name == 'Wireless Controller': #PS4
+    #if device.name == 'PLAYSTATION(R)3 Controller': #PS3
         debug_print("PS3 FOUND!")
         ps3dev = device.fn
 
@@ -52,15 +52,15 @@ gamepad = evdev.InputDevice(ps3dev)
 
 sd = MoveSteering(OUTPUT_B, OUTPUT_C) #steer drive
 
-
-# with open(FOLDER_NAME + FILE_NAME, "w") as file:
-#     file.write("Hello world!")
+#lets refresh the file
+with open(FOLDER_NAME + FILE_NAME, "w") as file:
+    file.write("")
 
 speed = 1
 steer = 0
 
-speedLimit = 100
-steerLimit = 100
+speedLimit = 10
+steerLimit = 75
 
 joystick_signal_threshold = 7
 
@@ -136,25 +136,25 @@ for event in gamepad.read_loop():   #this loops infinitely
     if event.type == 1 and event.code == 311 and event.value == 1:
         #debug_print("R1 button is pressed")
         if steerLimit < 100:
-            steerLimit += 10
+            steerLimit += 5
             debug_print("New steer limit is: ", steerLimit)
             print("Steer: ", steerLimit)
     if event.type == 1 and event.code == 313 and event.value == 1:
         #debug_print("R2 button is pressed")
         if speedLimit < 100:
-            speedLimit += 10
+            speedLimit += 5
             debug_print("New speed limit is: ", speedLimit)
             print("Speed: ", speed)
 
     if event.type == 1 and event.code == 310 and event.value == 1:
         #debug_print("L1 button is pressed")
         if steerLimit > 0:
-            steerLimit -= 10
+            steerLimit -= 5
             debug_print("New steer limit is: ", steerLimit)
     if event.type == 1 and event.code == 312 and event.value == 1:
         #debug_print("L2 button is pressed")
         if speedLimit > 0:
-            speedLimit -= 10
+            speedLimit -= 5
             debug_print("New speed limit is: ", speedLimit)
 
     if event.type == 1 and event.code == 315 and event.value == 1:
