@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+__author__= "Vili Hätönen"
 from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, SpeedPercent, MoveTank, MoveSteering
 from ev3dev2.sensor import INPUT_4
 from ev3dev2.sensor.lego import TouchSensor, ColorSensor

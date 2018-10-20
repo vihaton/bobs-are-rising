@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+__author__= "Vili Hätönen"
 
 import time
 
