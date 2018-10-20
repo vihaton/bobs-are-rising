@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-__author__ = 'Jaakko Oinas and Vili Hätönen' 
+__author__ = 'Jaakko Oinas, Vili Hätönen'
 
 from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, SpeedPercent, MoveTank, MoveSteering
 
@@ -8,7 +8,12 @@ import ev3dev.auto as ev3
 import threading
 import time
 import sys
+
 from gather_data import *
+
+FOLDER_NAME = "../data/"
+FILE_NAME = "speed_data.txt"
+WAIT_TIME = 5
 
 def debug_print(*args, **kwargs):
     '''Print debug messages to stderr.
@@ -38,7 +43,8 @@ debug_print("Finding ps3 controller...")
 devices = [evdev.InputDevice(fn) for fn in evdev.list_devices()]
 for device in devices:
     debug_print(device.name)
-    if device.name == 'Wireless Controller':
+    #if device.name == 'Wireless Controller': #PS4
+    if device.name == 'PLAYSTATION(R)3 Controller': #PS3
         debug_print("PS3 FOUND!")
         ps3dev = device.fn
 
@@ -46,14 +52,17 @@ gamepad = evdev.InputDevice(ps3dev)
 
 sd = MoveSteering(OUTPUT_B, OUTPUT_C) #steer drive
 
-file = open('log.txt','w')
-file.write("Hello world")
+
+# with open(FOLDER_NAME + FILE_NAME, "w") as file:
+#     file.write("Hello world!")
 
 speed = 1
 steer = 0
 
 speedLimit = 100
 steerLimit = 100
+
+joystick_signal_threshold = 7
 
 running = True
 
@@ -69,13 +78,15 @@ class MotorThread(threading.Thread):
         while running:
             round += 1 
             if speed < 0:
-                if speed < -3:
-                    sd.on(-steer, speed)
+                if speed < -joystick_signal_threshold:
+                    #sd.on(-steer, speed) #for BOB
+                    sd.on(steer, -speed) #for training robot
                 else:
                     sd.off()
             else:
-                if speed > 3:
-                    sd.on(-steer, speed)
+                if speed > joystick_signal_threshold:
+                    #sd.on(-steer, speed) #for BOB
+                    sd.on(steer, -speed) #for training robot
                 else:
                      sd.off()
             #self.motor.run_direct(duty_cycle_sp=speed)
@@ -90,19 +101,28 @@ motor_thread = MotorThread()
 motor_thread.setDaemon(True)
 motor_thread.start()
 
+start_data_gathering()
+
 
 for event in gamepad.read_loop():   #this loops infinitely
     if event.type == 1 and event.code == 304 and event.value == 1:
         debug_print("X button is pressed. Stopping.")
         running = False
-        file.close()
         break
     if event.type == 1 and event.code == 305 and event.value == 1:
         debug_print("Round button is pressed")
     if event.type == 1 and event.code == 308 and event.value == 1:
         debug_print("Square button is pressed")
     if event.type == 1 and event.code == 307 and event.value == 1:
-        debug_print("Triangle button is pressed")
+        debug_print("Triangle button is pressed, lets stop")
+        sd.stop()
+        save_data_to_file(FOLDER_NAME + FILE_NAME)
+        #save_data_to_file(FILE_NAME)
+        for i in range(WAIT_TIME, 0, -1):
+            debug_print(i , " seconds...")
+            print(i, "seconds...")
+            time.sleep(1)
+        debug_print("GO!")
 
     if event.type == 1 and event.code == 544 and event.value == 1:
         debug_print("Up button is pressed")
@@ -115,26 +135,26 @@ for event in gamepad.read_loop():   #this loops infinitely
         debug_print("Left button is pressed")
     if event.type == 1 and event.code == 311 and event.value == 1:
         #debug_print("R1 button is pressed")
-        if steerLimit > 0:
-            steerLimit -= 10
+        if steerLimit < 100:
+            steerLimit += 10
             debug_print("New steer limit is: ", steerLimit)
             print("Steer: ", steerLimit)
     if event.type == 1 and event.code == 313 and event.value == 1:
         #debug_print("R2 button is pressed")
-        if speedLimit > 0:
-            speedLimit -= 10
+        if speedLimit < 100:
+            speedLimit += 10
             debug_print("New speed limit is: ", speedLimit)
             print("Speed: ", speed)
 
     if event.type == 1 and event.code == 310 and event.value == 1:
         #debug_print("L1 button is pressed")
-        if steerLimit < 100:
-            steerLimit += 10
+        if steerLimit > 0:
+            steerLimit -= 10
             debug_print("New steer limit is: ", steerLimit)
     if event.type == 1 and event.code == 312 and event.value == 1:
         #debug_print("L2 button is pressed")
-        if speedLimit < 100:
-            speedLimit += 10
+        if speedLimit > 0:
+            speedLimit -= 10
             debug_print("New speed limit is: ", speedLimit)
 
     if event.type == 1 and event.code == 315 and event.value == 1:
