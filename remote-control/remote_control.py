@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 __author__ = 'Jaakko Oinas'
 
-from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, SpeedPercent, MoveTank, MoveSteering
+from ev3dev2.motor import LargeMotor, MediumMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, SpeedPercent, MoveTank, MoveSteering
 
 import evdev
 import ev3dev.auto as ev3
@@ -32,19 +32,35 @@ def scale(val, src, dst):
 def scale_stick(value):
     return scale(value,(0,255),(-100,100))
 
+# Pairing instructions
+#
+# PS3 (DualShock 3):
+# 1. On the EV3 brick go to ‘Wireless and Networks’ > ‘Bluetooth’
+# 2. Make sure Bluetooth is Powered and the brick is Visible.
+# 3. Connect the gamepad via a mini USB cable to the EV3. I used the large USB port next to the microSD slot.
+# 4. Under Devices a ‘PLAYSTATION(R) 3 controller’ should show up. But don’t pair!
+# 5. Remove the USB cable again.
+# 6. Press the PS3 button on the gamepad.
+# 7. The brick now asks “Authorize service HID?” Press “Accept”
+
+# PS4 (DualShock 4):
+# 1. Pair your gamepad with EV3 by pressing and holding the PS button and the sharing button simultaneously.
+# 2. Select “Wireless and Networks > Bluetooth > Start scan”, then choose “Wireless Controller”.
+
 ## Initializing ##
 debug_print("Finding ps3 controller...")
 devices = [evdev.InputDevice(fn) for fn in evdev.list_devices()]
 for device in devices:
     debug_print(device.name)
-    #if device.name == 'Wireless Controller': #PS4
-    if device.name == 'PLAYSTATION(R)3 Controller': #PS3
+    if device.name == 'Wireless Controller': #PS4
+    #if device.name == 'PLAYSTATION(R)3 Controller': #PS3
         debug_print("PS3 FOUND!")
         ps3dev = device.fn
 
 gamepad = evdev.InputDevice(ps3dev)
 
 sd = MoveSteering(OUTPUT_B, OUTPUT_C) #steer drive
+ladle = MediumMotor(OUTPUT_A)
 
 file = open('log.txt','w')
 file.write("Hello world")
@@ -59,7 +75,7 @@ running = True
 
 class MotorThread(threading.Thread):
     def __init__(self):
-        self.motor = ev3.LargeMotor(ev3.OUTPUT_A)
+        #self.motor = ev3.LargeMotor(ev3.OUTPUT_A)
         threading.Thread.__init__(self)
 
     def run(self):
@@ -70,14 +86,14 @@ class MotorThread(threading.Thread):
             round += 1 
             if speed < 0:
                 if speed < -3:
-                    #sd.on(-steer, speed) #for BOB
-                    sd.on(steer, -speed) #for training robot
+                    sd.on(-steer, speed) #for BOB
+                    #sd.on(steer, -speed) #for training robot
                 else:
                     sd.off()
             else:
                 if speed > 3:
-                    #sd.on(-steer, speed) #for BOB
-                    sd.on(steer, -speed) #for training robot
+                    sd.on(-steer, speed) #for BOB
+                    #sd.on(steer, -speed) #for training robot
                 else:
                      sd.off()
             #self.motor.run_direct(duty_cycle_sp=speed)
@@ -94,18 +110,26 @@ motor_thread.start()
 
 
 for event in gamepad.read_loop():   #this loops infinitely
-    if event.type == 1 and event.code == 304 and event.value == 1:
-        debug_print("X button is pressed. Stopping.")
-        running = False
-        file.close()
-        break
+    if event.type == 1 and event.code == 304: ## Cross-button
+            if event.value == 1:
+                if not ladle.is_running:
+                    debug_print("Ladle down start")
+                    ladle.on(-50)
+            else:
+                debug_print("Ladle down stop")
+                ladle.off()
     if event.type == 1 and event.code == 305 and event.value == 1:
         debug_print("Round button is pressed")
     if event.type == 1 and event.code == 308 and event.value == 1:
         debug_print("Square button is pressed")
-    if event.type == 1 and event.code == 307 and event.value == 1:
-        debug_print("Triangle button is pressed")
-
+    if event.type == 1 and event.code == 307: ## Triangle-button
+            if event.value == 1:
+                if not ladle.is_running:
+                    debug_print("Ladle up start")
+                    ladle.on(50)
+            else:
+                debug_print("Ladle up stop")
+                ladle.off()
     if event.type == 1 and event.code == 544 and event.value == 1:
         debug_print("Up button is pressed")
 
@@ -140,7 +164,10 @@ for event in gamepad.read_loop():   #this loops infinitely
             debug_print("New speed limit is: ", speedLimit)
 
     if event.type == 1 and event.code == 315 and event.value == 1:
-        debug_print("Start button is pressed")
+        debug_print("Start button is pressed. Stopping.")
+        running = False
+        file.close()
+        break
     if event.type == 1 and event.code == 314 and event.value == 1:
         debug_print("Select button is pressed")
 
