@@ -6,6 +6,7 @@ import ast
 
 
 name = "speed_data_circle_2.txt"
+name = "speed_data_chairs.txt"
 data_str = ""
 
 with open(name, "r") as file:
