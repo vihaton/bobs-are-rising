@@ -48,7 +48,7 @@ def main():
 
     solve_maze(sd, cs, btn)
 
-    calibrate_turn(turn_90, td)
+    #calibrate_turn(turn_90, td)
 
 if __name__ == '__main__':
     main()

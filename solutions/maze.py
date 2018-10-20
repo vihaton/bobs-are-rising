@@ -11,12 +11,12 @@ COLORS=('unknown','black','blue','green','yellow','red','white','brown')
 def check_for_button(color_sensor):
     c = color_sensor.value()
     print("color = ", c , " = ", COLORS[c])
-    if color_sensor.color() is YELLOW: #we're on the yellow button
+    if c is YELLOW: #we're on the yellow button
         return True
     return False
 
-def follow_line(sd, button, color_sensor, steering=10, speed=40): #let's follow the right edge!
-    while True:
+def follow_line(func_condition_to_exit, sd, button, color_sensor, steering=10, speed=40): #let's follow the right edge!
+    while not func_condition_to_exit:
         steering, speed = calibrate_steer_and_speed(button, steering, speed)
         c = color_sensor.value()
         print(steering, speed)
@@ -52,23 +52,19 @@ def follow_line(sd, button, color_sensor, steering=10, speed=40): #let's follow 
 #             loops_wo_white += 1
 
 def solve_maze(sd, color_sensor, button):
-    button_pressed = False
     print("let's follow the line to find a button!")
 
     color_sensor.mode = 'COL-COLOR' #let's recognice colors
 
-    #etsitään nappi
-    while not button_pressed:
-        follow_line(sd, button, color_sensor,40, 15) #40 for steering and 15 for speed follows also 90*degree angles
-        button_pressed = check_for_button(color_sensor)
-
+    #etsitään nappi seuraamalla valkoista viivaa
+    follow_line(check_for_button(color_sensor), sd, button, color_sensor,42, 15) #42 for steering and 15 for speed follows also 90*degree angles
+    
+    print("button found!")
+    #odotetaan siirtymä ja valmistaudutaan jatkamaan
 
     while True: #stop program to read screen
         if button.any():
             break
-            
-    print("button found!")
-    #odotetaan siirtymä ja valmistaudutaan jatkamaan
 
 
     
