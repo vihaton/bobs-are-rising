@@ -39,17 +39,9 @@ def check_for_button(color_sensor):
     return False
 
 
-def check_for_end_of_challange(color_sensor):
-    # global CONSECUTIVE_REDS
-    # c = color_sensor.value()
-    # print("cfe: ", c, " = ", COLORS[c])
-    # if c is RED:
-    #     CONSECUTIVE_REDS += 1
-    # else:
-    #     CONSECUTIVE_REDS = 0
-
-    # if CONSECUTIVE_REDS > 3:
-    #     return True
+def check_for_end_of_challange(btn):
+    if btn.any():
+        return True
     return False
 
 def follow_line(func_condition_to_exit, sd, button, color_sensor, steering=10, speed=40, right_edge=True, input_for_exit_condition=None): #let's follow the right edge!
@@ -62,18 +54,19 @@ def follow_line(func_condition_to_exit, sd, button, color_sensor, steering=10, s
         c = color_sensor.value()
         #print(steering, speed)
         debug_print(c , " = ", COLORS[c])
+        t = time.time() * 1000
 
         if c is WHITE:   #when we're on top of the line (and follow right edge), steer right
             sd.on(right_edge * steering, speed)
-            no_white_since = time.time() * 1000
+            no_white_since = t
         else:                               #were not on the line (-:-), steer left
             sd.on(right_edge * -steering, speed)
 
         #to save us if we move to the left side of the line
-        if (time.time() - no_white_since > 200): #if we haven't seen white in 0.2s
-            debug_print("no white for ", time.time() - no_white_since)
-            if (speed < 50):
-                sd.on_for_seconds(0, -2 * speed, .5)
+        if (t - no_white_since > 2000): #if we haven't seen white in 0.2s
+            debug_print("no white for ", t - no_white_since)
+            sd.on_for_seconds(0, -speed, 1)
+            no_white_since = t
 
 def press_the_button():
     #accelerate a little sprint

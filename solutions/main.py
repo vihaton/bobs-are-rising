@@ -51,14 +51,17 @@ def main():
     solve_forest()
 
 def calibrate():
+    cs.mode = 'COL-COLOR' #let's recognice colors
+
     while True:
+
         cfe = lambda color_sensor : check_for_end_of_challange(color_sensor)
         #find the goal
-        follow_line(cfe, sd, btn, cs, 45, -10, input_for_exit_condition=cs)
+        follow_line(cfe, sd, btn, cs, 45, 10, input_for_exit_condition=cs)
         debug_print("Goal is found")
 
 
 
 if __name__ == '__main__':
-    main()
-    #calibrate()
+    #main()
+    calibrate()

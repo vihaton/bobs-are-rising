@@ -63,7 +63,7 @@ sd = MoveSteering(OUTPUT_B, OUTPUT_C) #steer drive
 ladle = MediumMotor(OUTPUT_A)
 
 file = open('log.txt','w')
-file.write("Hello world")
+file.write("Hello world") 	
 
 speed = 1
 steer = 0

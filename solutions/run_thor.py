@@ -18,6 +18,10 @@ motor_l = ev3.LargeMotor(ev3.OUTPUT_B)
 motor_r = ev3.LargeMotor(ev3.OUTPUT_C)
 btn = Button()
 
+def get_models():
+    global models
+    return models
+
 def debug_print(*args, **kwargs):
     '''Print debug messages to stderr.
 
@@ -71,6 +75,9 @@ def run_model(model):
         
         if btn.left: #if we press left, it means start again
             return False
+        if btn.right:
+            return True #we'll skip this challange
+
         #let's update motor speeds
         motor_l.speed_sp = value[1]
         motor_r.speed_sp = value[2]
