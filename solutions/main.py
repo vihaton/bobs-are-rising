@@ -10,12 +10,11 @@ import time
 #our own code
 from robot_utils import *
 from robot_io import *
-from maze import solve_maze
+from maze import *
 from gather_data import start_data_gathering
+from run_thor import *
 
 # state constants
-ON = True
-OFF = False
 NORMAL_SPEED = 42
 td = MoveTank(OUTPUT_B, OUTPUT_C) #tank drive
 sd = MoveSteering(OUTPUT_B, OUTPUT_C) #steer drive
@@ -34,24 +33,32 @@ def l_shape():
 
 def main():
 
-    # set the console just how we want it
-    reset_console()
-    set_cursor(OFF)
-    set_font('Lat15-Terminus24x12')
+    init_console()
 
-    # print something to the screen of the device
-    print('Hello World!')
+    init_maze_model()
+    init_forest_model()
 
-    # print something to the output panel in VS Code
-    debug_print('Hello VS Code!')
+    print("BOB is teached by Thor and ready to run.")
+    debug_print("BOB is teached by Thor and ready to run.")
+    while not btn.any(): # While no (not any) button is pressed.
+        time.sleep(0.01)  # Wait 0.01 second    
 
-    start_data_gathering()    
+    press_maze_button()
 
+    #we're at the button
     solve_maze(sd, cs, btn)
 
-    #solve_forest(sd, cs, btn)
+    solve_forest()
 
-    #calibrate_turn(turn_90, td)
+def calibrate():
+    while True:
+        cfe = lambda color_sensor : check_for_end_of_challange(color_sensor)
+        #find the goal
+        follow_line(cfe, sd, btn, cs, 45, -10, input_for_exit_condition=cs)
+        debug_print("Goal is found")
+
+
 
 if __name__ == '__main__':
     main()
+    #calibrate()

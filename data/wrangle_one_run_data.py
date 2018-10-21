@@ -5,7 +5,8 @@ import thor
 import ast
 
 
-names = ["speed_data_maze1.txt", "speed_data_maze2.txt", "speed_data_forest.txt", "speed_data_box.txt", "speed_data_maze12.txt"]
+#names = ["speed_data_maze1.txt", "speed_data_maze2.txt", "speed_data_forest.txt", "speed_data_box.txt", "speed_data_maze12.txt"]
+names = ["speed_data_maze.txt", "speed_data_forest.txt"]
 data_str = ""
 
 for i in range(len(names)):

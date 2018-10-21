@@ -40,36 +40,40 @@ def check_for_button(color_sensor):
 
 
 def check_for_end_of_challange(color_sensor):
-    global CONSECUTIVE_REDS
-    c = color_sensor.value()
-    print("cfe: ", c, " = ", COLORS[c])
-    if c is RED:
-        CONSECUTIVE_REDS += 1
-    else:
-        CONSECUTIVE_REDS = 0
+    # global CONSECUTIVE_REDS
+    # c = color_sensor.value()
+    # print("cfe: ", c, " = ", COLORS[c])
+    # if c is RED:
+    #     CONSECUTIVE_REDS += 1
+    # else:
+    #     CONSECUTIVE_REDS = 0
 
-    if CONSECUTIVE_REDS > 3:
-        return True
+    # if CONSECUTIVE_REDS > 3:
+    #     return True
     return False
 
 def follow_line(func_condition_to_exit, sd, button, color_sensor, steering=10, speed=40, right_edge=True, input_for_exit_condition=None): #let's follow the right edge!
     if right_edge: right_edge = 1
     else: right_edge = -1
 
+    no_white_since = time.time() * 1000
     while not func_condition_to_exit(input_for_exit_condition):
         steering, speed = calibrate_steer_and_speed(button, steering, speed)
         c = color_sensor.value()
-        print(steering, speed)
-        print(c , " = ", COLORS[c])
+        #print(steering, speed)
+        debug_print(c , " = ", COLORS[c])
 
         if c is WHITE:   #when we're on top of the line (and follow right edge), steer right
             sd.on(right_edge * steering, speed)
+            no_white_since = time.time() * 1000
         else:                               #were not on the line (-:-), steer left
             sd.on(right_edge * -steering, speed)
 
-        if btn.enter:
-            sd.stop()
-            time.sleep(5)
+        #to save us if we move to the left side of the line
+        if (time.time() - no_white_since > 200): #if we haven't seen white in 0.2s
+            debug_print("no white for ", time.time() - no_white_since)
+            if (speed < 50):
+                sd.on_for_seconds(0, -2 * speed, .5)
 
 def press_the_button():
     #accelerate a little sprint
@@ -84,6 +88,12 @@ def press_the_button():
     #stop
     accelerate_to(td, -30, -30, 0, 0, 0.5)
 
+def prepare_to_see_colors():
+    accelerate_to(td, 0, 0, -15, -15, .5)
+    time.sleep(1)
+    accelerate_to(td, -15, -15, 0, 0, 0.5) 
+
+    turn_90(sd, False)
 
 # #DEPRACATED
 # def follow_line_with_interpolation(sd, color_sensor, steering=10, speed=40): #let's follow the right edge!
@@ -109,34 +119,31 @@ def press_the_button():
 #             loops_wo_white += 1
 
 def solve_maze(sd, color_sensor, button):
-    # set the console just how we want it
-    reset_console()
-    set_cursor(OFF)
-    set_font('Lat15-Terminus24x12')
-
-    print("let's follow the line to find a button!")
+    init_console()
 
     color_sensor.mode = 'COL-COLOR' #let's recognice colors
 
+    prepare_to_see_colors()
+
     cfb = lambda color_sensor : check_for_button(color_sensor) #my first lambda funcion ever
 
-    #etsitään nappi seuraamalla valkoista viivaa kunnes nappi löytyy
-    follow_line(cfb, sd, button, color_sensor,45, 10, input_for_exit_condition=color_sensor) #42 for steering and 15 for speed follows also 90*degree angles
+    # #etsitään nappi seuraamalla valkoista viivaa kunnes nappi löytyy
+    # follow_line(cfb, sd, button, color_sensor,45, 10, input_for_exit_condition=color_sensor) #42 for steering and 15 for speed follows also 90*degree angles
     
-    print("button found!")
-    #odotetaan siirtymä ja valmistaudutaan jatkamaan
+    # print("button found!")
+    # #odotetaan siirtymä ja valmistaudutaan jatkamaan
 
-    press_the_button()
+    # press_the_button()
 
-    #let's find the white line again
-    #turn_to_find_color(sd, color_sensor)
-    turn_90(sd)
+    # #let's find the white line again
+    # #turn_to_find_color(sd, color_sensor)
+    # turn_90(sd)
 
     cfe = lambda color_sensor : check_for_end_of_challange(color_sensor)
     #find the goal
     follow_line(cfe, sd, button, color_sensor, 45, 10, input_for_exit_condition=color_sensor)
 
-    print("end found!")
+    debug_print("end found!")
     while True: #stop program to read screen
         if button.any():
             break

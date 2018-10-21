@@ -11,6 +11,8 @@ import ast
 import robot_io
 
 models = []
+maze_button_model = None
+forest_model = None
 sd = MoveSteering(OUTPUT_B, OUTPUT_C) #steer drive
 motor_l = ev3.LargeMotor(ev3.OUTPUT_B)
 motor_r = ev3.LargeMotor(ev3.OUTPUT_C)
@@ -36,8 +38,23 @@ def init_models():
             with open(name, "r") as file:
                 model_str = file.read()
             model = ast.literal_eval(model_str)
+
             models.append(model)
-            debug_print("Model is read")
+            debug_print("Models are read")
+
+def init_maze_model():
+    global maze_button_model
+    with open("model_maze.thor", "r") as file:
+        model_str = file.read()
+    maze_button_model = ast.literal_eval(model_str)
+    debug_print("maze model read")
+
+def init_forest_model():
+    global forest_model
+    with open("model_forest.thor", "r") as file:
+        model_str = file.read()
+    forest_model = ast.literal_eval(model_str)
+    debug_print("forest model read")
 
 def run_model(model):
     time_start = time.time() * 1000
@@ -70,6 +87,20 @@ def run_model(model):
     motor_r.stop()
     debug_print("we postponed ", postponed, " iterations, ", postponed / len(model), "%")
     return True
+
+def press_maze_button(): #used by main
+    global sd, maze_button_model
+
+    sd.on_for_seconds(0, -10, 1, brake=False) #to start the same way
+    while not run_model(maze_button_model):
+        debug_print("AGAIN! Sleep 1s")
+        time.sleep(1)
+
+def solve_forest():
+    global forest_model
+    while not run_model(forest_model):
+        debug_print("AGAIN! Sleep 3s")
+        time.sleep(3)
 
 def run():
     init_models()
