@@ -31,3 +31,9 @@ def set_font(name):
     A full list of fonts can be found with `ls /usr/share/consolefonts`
     '''
     os.system('setfont ' + name)
+
+def init_console():
+    # set the console just how we want it
+    reset_console()
+    set_cursor(False)
+    set_font('Lat15-Terminus24x12')

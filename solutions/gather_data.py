@@ -58,5 +58,5 @@ def save_data_to_file(name=""):
     data_as_string = "*** NEW DATA SET ***\n"
     data_as_string += str(data_thread.speed_data)
     #debug_print("write text: " + data_as_string)
-    with open(name, "a") as file:
+    with open(name, "w") as file:
         file.write(data_as_string)

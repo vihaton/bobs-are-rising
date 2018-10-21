@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, SpeedPercent, MoveTank, MoveSteering
 import ev3dev2.auto as ev3
+from ev3dev2.button import Button
 
 import os
 import sys
@@ -8,12 +9,13 @@ import time
 import ast
 
 folder_name = "../data/"
-model_name = "model_1.thor"
+model_name = "model_0.thor"
 
 model = None
 sd = MoveSteering(OUTPUT_B, OUTPUT_C) #steer drive
 motor_l = ev3.LargeMotor(ev3.OUTPUT_B)
 motor_r = ev3.LargeMotor(ev3.OUTPUT_C)
+btn = Button()
 
 def debug_print(*args, **kwargs):
     '''Print debug messages to stderr.
@@ -31,6 +33,8 @@ def init_model():
 def run_circle():
     init_model()
     global model, sd
+
+    btn.wait
     
     time_start = time.time() * 1000
     ind = 0

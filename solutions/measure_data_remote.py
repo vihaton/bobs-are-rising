@@ -12,14 +12,16 @@ import sys
 from gather_data import *
 
 FOLDER_NAME = "../data/"
-FILE_NAME = "speed_data_tmp.txt"
+FILE_NAME = "speed_data_tmp" 
 WAIT_TIME = 5
+
+DATA_SET_IND = 0 #write all data sets to different files
 
 speed = 1
 steer = 0
 
-speedLimit = 10
-steerLimit = 75
+speedLimit = 12
+steerLimit = 100
 
 joystick_signal_threshold = 7
 
@@ -86,7 +88,7 @@ class MotorThread(threading.Thread):
         debug_print("motor stop")
 
 def run():
-    global sd, speedLimit, steerLimit, joystick_signal_threshold, running, speed, steer, WAIT_TIME, FILE_NAME
+    global sd, speedLimit, steerLimit, joystick_signal_threshold, running, speed, steer, WAIT_TIME, FILE_NAME, DATA_SET_IND
     
     ## Initializing ##
     debug_print("Finding ps3 controller...")
@@ -99,10 +101,6 @@ def run():
             ps3dev = device.fn
 
     gamepad = evdev.InputDevice(ps3dev)
-
-    #lets refresh the file
-    with open(FILE_NAME, "w") as file:
-        file.write("")
 
     motor_thread = MotorThread()
     motor_thread.setDaemon(True)
@@ -124,7 +122,8 @@ def run():
         if event.type == 1 and event.code == 307 and event.value == 1:
             debug_print("Triangle button is pressed, lets stop")
             sd.stop()
-            save_data_to_file(FILE_NAME)
+            save_data_to_file(FILE_NAME + str(DATA_SET_IND) + ".txt")
+            DATA_SET_IND += 1
 
         if event.type == 1 and event.code == 544 and event.value == 1:
             debug_print("Up button is pressed")
