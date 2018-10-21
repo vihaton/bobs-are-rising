@@ -42,14 +42,18 @@ def init_models():
 def run_model(model):
     time_start = time.time() * 1000
     ind = 0
+    postponed = 0
     while ind < len(model):
         t = time.time() * 1000
         value = model[ind]  #value = [time, speed left, speed right]
         delta = t - time_start
         if delta < value[0]: #we're not there yet, let's wait
             #debug_print("delta ", delta, " value ", value) #this takes a lot of time!!!
+            postponed += 1
             continue
         
+        if btn.left: #if we press left, it means start again
+            return False
         #let's update motor speeds
         motor_l.speed_sp = value[1]
         motor_r.speed_sp = value[2]
@@ -64,6 +68,8 @@ def run_model(model):
 
     motor_l.stop()
     motor_r.stop()
+    debug_print("we postponed ", postponed, " iterations, ", postponed / len(model), "%")
+    return True
 
 def run():
     init_models()
@@ -78,7 +84,11 @@ def run():
     for i in range(len(models)):
         t = time.time() * 1000
         debug_print("run model no " + str(i), "model length ", models[i][-1][0])
-        run_model(models[i])
+        while not run_model(models[i]): #until we get it right
+            while not btn.any(): #let's wait for the press that we're ready
+                time.sleep(0.01)
+            debug_print("Let's try again in 1s!")
+            time.sleep(1)
         debug_print("run took ", time.time() * 1000 - t)
     
 

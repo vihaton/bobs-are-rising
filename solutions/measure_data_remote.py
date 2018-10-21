@@ -20,7 +20,7 @@ DATA_SET_IND = 0 #write all data sets to different files
 speed = 1
 steer = 0
 
-speedLimit = 10
+speedLimit = 25
 steerLimit = 75
 
 joystick_signal_threshold = 7

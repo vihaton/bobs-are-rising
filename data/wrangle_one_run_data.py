@@ -5,11 +5,14 @@ import thor
 import ast
 
 
-names = ["speed_data_maze1.txt", "speed_data_maze2.txt", "speed_data_forest.txt", "speed_data_box.txt"]
+names = ["speed_data_maze1.txt", "speed_data_maze2.txt", "speed_data_forest.txt", "speed_data_box.txt", "speed_data_maze12.txt"]
 data_str = ""
 
 for i in range(len(names)):
 	name = names[i]
+	if name not in os.listdir("."):
+		continue
+		
 	with open(name, "r") as file:
 		data_str = file.read()
 
