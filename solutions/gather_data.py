@@ -10,8 +10,6 @@ from math import floor
 import ev3dev2.auto as ev3
 from ev3dev2.button import Button
 
-
-measure = True
 data_thread = None
 time_start = 0
 
@@ -21,13 +19,16 @@ class DataThread(threading.Thread):
         self.motor_l = ev3.LargeMotor(ev3.OUTPUT_B)
         self.motor_r = ev3.LargeMotor(ev3.OUTPUT_C)
         self.btn = Button()
+        self.measure = False
         threading.Thread.__init__(self)
 
     def run(self):
         global time_start
+        self.speed_data = []
+        self.measure = True
         debug_print("Start measuring data!")
         time_start = time.time() * 1000
-        while measure:
+        while self.measure:
             t = time.time() * 1000 - time_start
             speed_l = self.motor_l.speed    #Returns the current motor speed in tacho counts per second
             speed_r = self.motor_r.speed
@@ -50,6 +51,7 @@ def start_data_gathering():
     
 def save_data_to_file(name=""):
     global time_start, data_thread
+    data_thread.measure = False
     if name is "":
         name = "test_file.txt"
     debug_print("writing to file ", name)
@@ -58,7 +60,3 @@ def save_data_to_file(name=""):
     #debug_print("write text: " + data_as_string)
     with open(name, "a") as file:
         file.write(data_as_string)
-    
-    #reset index
-    time_start = time.time() * 1000
-    data_thread.speed_data = []

@@ -25,15 +25,13 @@ def debug_print(*args, **kwargs):
 
 def init_model():
     global model
-    with open(folder_name + model_name, "r") as file:
+    with open(model_name, "r") as file:
         model = ast.literal_eval(file.read())
-
-    print(model, type(model))
 
 def run_circle():
     init_model()
     global model, sd
-
+    
     time_start = time.time() * 1000
     ind = 0
     while ind < len(model):
